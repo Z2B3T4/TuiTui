@@ -77,7 +77,7 @@ public class BookShelfServiceImpl implements BookShelfService {
     }
 
     @Override
-    public void readChapter(int userID,int novelId, int chapterId) {
+    public void readChapter(int userID,int novelId, int chapterId) throws Exception {
         List<YikeNovelSubscribeAudit> subscribeAuditByUserIdAndNovelId = bookShelfMapper.getSubscribeAuditByUserIdAndNovelId(userID, novelId);
 
         if(subscribeAuditByUserIdAndNovelId != null && !subscribeAuditByUserIdAndNovelId.isEmpty()){
@@ -86,6 +86,7 @@ public class BookShelfServiceImpl implements BookShelfService {
             bookShelfMapper.readChapter(userID,novelId,chapterId);
         }
         RedisUtils.remove(RedisConstant.preUserId +  String.valueOf(userID));
+        getBookShelfByUserId(userID);
     }
 
     @Override
@@ -103,6 +104,7 @@ public class BookShelfServiceImpl implements BookShelfService {
         }
         bookShelfMapper.updateTopBook(userID,novelId);
         RedisUtils.remove(RedisConstant.preUserId +  String.valueOf(userID));
+        getBookShelfByUserId(userID);
     }
 
     @Override
@@ -120,6 +122,7 @@ public class BookShelfServiceImpl implements BookShelfService {
         }
         bookShelfMapper.deleteBookByUserIdAndNovelId(userID,novelId);
         RedisUtils.remove(RedisConstant.preUserId +  String.valueOf(userID));
+        getBookShelfByUserId(userID);
 
         RedisUtils.deleteUserIdFromNovelId(userID,novelId);
 
@@ -157,14 +160,15 @@ public class BookShelfServiceImpl implements BookShelfService {
     }
 
     @Override
-    public void updateIsReadByUserIdAndNovelId(int userID, int novelId) {
+    public void updateIsReadByUserIdAndNovelId(int userID, int novelId) throws Exception {
         bookShelfMapper.updateIsReadByUserIdAndNovelId(userID,novelId);
         RedisUtils.remove(RedisConstant.preUserId +  String.valueOf(userID));
+        getBookShelfByUserId(userID);
     }
 
 
     @Override
-    public void updateIsReadByNovelId(int userID,int NovelId) {
+    public void updateIsReadByNovelId(int userID,int NovelId) throws Exception {
         // redis 批量更新
         Set<String> setMembers = RedisUtils.getSetMembers(RedisConstant.preNovelId + String.valueOf(NovelId));
         if (setMembers == null || setMembers.isEmpty()) {
@@ -219,11 +223,12 @@ public class BookShelfServiceImpl implements BookShelfService {
           */
 
         RedisUtils.remove(RedisConstant.preUserId +  String.valueOf(userID));
+        getBookShelfByUserId(userID);
 
     }
 
     @Override
-    public void updateIsReadByNovelIdList(int userID, List<Integer> novelIds) {
+    public void updateIsReadByNovelIdList(int userID, List<Integer> novelIds) throws Exception {
         for (Integer NovelId : novelIds) {
             // redis 批量更新
             Set<String> setMembers = RedisUtils.getSetMembers(RedisConstant.preNovelId + String.valueOf(NovelId));
@@ -281,6 +286,7 @@ public class BookShelfServiceImpl implements BookShelfService {
         }
 
         RedisUtils.remove(RedisConstant.preUserId +  String.valueOf(userID));
+        getBookShelfByUserId(userID);
     }
 
 

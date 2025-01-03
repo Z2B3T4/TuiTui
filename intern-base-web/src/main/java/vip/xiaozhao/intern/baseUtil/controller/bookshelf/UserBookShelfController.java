@@ -36,7 +36,7 @@ public class UserBookShelfController extends BaseController {
     @PostMapping("/readChapter")
     public ResponseDO readChapter(HttpServletRequest request,
                                   @RequestParam(value = "novelId", defaultValue = "-1") int novelId,
-                                  @RequestParam(value = "chapterId", defaultValue = "-1") int chapterId){
+                                  @RequestParam(value = "chapterId", defaultValue = "-1") int chapterId) throws Exception {
         // 这里是用户读哪一章记录一下
         int userId = getCurrentUserId(request);
         if(userId == -1){
@@ -89,7 +89,7 @@ public class UserBookShelfController extends BaseController {
     // 这里是用户点开阅读了变为已读
     @PutMapping("/updateUserIsRead")
     public ResponseDO updateUserIsRead(HttpServletRequest request,
-                                   @RequestParam(value = "novelId",defaultValue = "-1")int novelId){
+                                   @RequestParam(value = "novelId",defaultValue = "-1")int novelId) throws Exception {
         int userId = getCurrentUserId(request);
         if(userId == -1){
             return ResponseDO.fail("您还未登录");
@@ -103,7 +103,7 @@ public class UserBookShelfController extends BaseController {
 
     // 将这本小说对应的用户改为未读,这个是根据一本小说id进行修改用户未读状态
     @PutMapping("/updateUserIsReadByNovelID/{novelId}")
-    public ResponseDO updateUserIsReadByNovelID(HttpServletRequest request,@PathVariable(required = true)int novelId){
+    public ResponseDO updateUserIsReadByNovelID(HttpServletRequest request,@PathVariable(required = true)int novelId) throws Exception {
         int userId = getCurrentUserId(request);
         if(userId == -1){
             return ResponseDO.fail("您还未登录");
@@ -115,7 +115,7 @@ public class UserBookShelfController extends BaseController {
     // 这个是根据传过来的一组小说id来修改用户的未读状态
     @PutMapping("/updateUserIsReadByNovelIDs")
     public  ResponseDO updateUserIsReadByNovelIDs(HttpServletRequest request,
-                                                 @RequestBody List<Integer> novelIds){
+                                                 @RequestBody List<Integer> novelIds) throws Exception {
         int userId = getCurrentUserId(request);
         if(userId == -1){
             return ResponseDO.fail("您还未登录");
