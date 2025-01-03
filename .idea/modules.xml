@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/intern-base-intf/intern-base-intf.iml" filepath="$PROJECT_DIR$/intern-base-intf/intern-base-intf.iml" />
+      <module fileurl="file://$PROJECT_DIR$/intern-base-service/intern-base-service.iml" filepath="$PROJECT_DIR$/intern-base-service/intern-base-service.iml" />
+      <module fileurl="file://$PROJECT_DIR$/intern-base-web/intern-base-web.iml" filepath="$PROJECT_DIR$/intern-base-web/intern-base-web.iml" />
+    </modules>
+  </component>
+</project>
