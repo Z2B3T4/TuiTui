@@ -1,14 +1,15 @@
 package vip.xiaozhao.intern.baseUtil.intf.entity;
 
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+
 import java.util.Date;
 
 @Data                                   // Lombok 注解，生成 getter, setter, toString, equals, hashCode 等方法
 @NoArgsConstructor                      // 无参构造函数
-@AllArgsConstructor                     // 全参构造函数
+@AllArgsConstructor
+@Getter
+@Setter
 public class NovelInfo {
 
     private int id;                  // 主键，自增ID

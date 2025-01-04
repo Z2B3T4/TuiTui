@@ -13,6 +13,7 @@ public class RedisConstant {
 
     public static final String preUserId = "userId:";
     public static final String preNovelId = "novelId:";
+    public static final String HOT_NOVEL_LIST = "hotNovelList:";
 
     @Value("${redis.ip}")
     public  void setHostName(String hostName) {
