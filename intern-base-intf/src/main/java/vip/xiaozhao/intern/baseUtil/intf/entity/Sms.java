@@ -1,5 +1,6 @@
 package vip.xiaozhao.intern.baseUtil.intf.entity;
 
+
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -10,6 +11,7 @@ import java.util.Date;
 @ToString
 @Getter
 public class Sms {
+
 
     private int id;
     private int userId;

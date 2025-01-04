@@ -1,12 +1,14 @@
 package vip.xiaozhao.intern.baseUtil.intf.entity;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import lombok.Data;
 
 import java.util.Date;
 
 @Data
 public class YikeNovelBookshelf {
+
     private int id;                  // 主键
     private int userId;              // 用户ID
     private int novelId;             // 小说ID

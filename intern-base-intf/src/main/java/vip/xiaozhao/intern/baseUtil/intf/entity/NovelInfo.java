@@ -1,5 +1,6 @@
 package vip.xiaozhao.intern.baseUtil.intf.entity;
 
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -9,6 +10,7 @@ import java.util.Date;
 @NoArgsConstructor                      // 无参构造函数
 @AllArgsConstructor                     // 全参构造函数
 public class NovelInfo {
+
     private int id;                  // 主键，自增ID
 
     private int authorId;             // 作者ID

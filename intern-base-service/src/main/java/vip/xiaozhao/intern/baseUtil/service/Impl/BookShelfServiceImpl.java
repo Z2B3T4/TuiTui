@@ -3,6 +3,7 @@ package vip.xiaozhao.intern.baseUtil.service.Impl;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
+import vip.xiaozhao.intern.baseUtil.intf.annotation.TargetDataSource;
 import vip.xiaozhao.intern.baseUtil.intf.constant.RedisConstant;
 import vip.xiaozhao.intern.baseUtil.intf.entity.NovelInfo;
 import vip.xiaozhao.intern.baseUtil.intf.entity.YikeNovelBookshelf;
@@ -19,9 +20,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 @Service
@@ -36,6 +34,8 @@ public class BookShelfServiceImpl implements BookShelfService {
     private ObjectMapper objectMapper = new ObjectMapper();
 
 
+
+    //@TargetDataSource(name = "slave")
     @Override
     public List<YikeNovelBookshelf> getBookShelfByUserId(int userId) throws Exception {
         String strUserId = String.valueOf(userId);
@@ -89,6 +89,7 @@ public class BookShelfServiceImpl implements BookShelfService {
         getBookShelfByUserId(userID);
     }
 
+    //@TargetDataSource(name = "master")
     @Override
     public void updateTopBook(int userID, int novelId) throws Exception {
         List<YikeNovelBookshelf> bookShelfByUserId = getBookShelfByUserId(userID);

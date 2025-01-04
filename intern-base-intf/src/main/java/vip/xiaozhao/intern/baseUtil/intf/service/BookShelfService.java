@@ -1,5 +1,6 @@
 package vip.xiaozhao.intern.baseUtil.intf.service;
 
+import org.apache.ibatis.annotations.Select;
 import vip.xiaozhao.intern.baseUtil.intf.entity.YikeNovelBookshelf;
 
 import java.util.List;

@@ -1,5 +1,6 @@
 package vip.xiaozhao.intern.baseUtil.intf.entity;
 
+
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -8,10 +9,13 @@ import org.springframework.format.annotation.DateTimeFormat;
 import java.io.Serializable;
 import java.util.Date;
 
+
+
 @Getter
 @Setter
 @ToString
 public class User implements Serializable {
+
     private int id;
     private String userName;
     private String password;

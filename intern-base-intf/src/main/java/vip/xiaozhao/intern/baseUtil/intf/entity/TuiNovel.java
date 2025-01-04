@@ -1,9 +1,12 @@
 package vip.xiaozhao.intern.baseUtil.intf.entity;
 
+
+
 import java.util.Date;
 
 
 public class TuiNovel {
+
 
   private int id;
   private String name;

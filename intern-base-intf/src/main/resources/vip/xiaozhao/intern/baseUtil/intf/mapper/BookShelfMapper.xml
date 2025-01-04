@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="vip.xiaozhao.intern.baseUtil.intf.mapper.BookShelfMapper">
+    <insert id="readChapter">
+        insert into yike_novel_subscribe_audit (userId,novelId,chapterId) values (#{userId},#{novelId},#{chapterId})
+    </insert>
+    <update id="updateTopBook">
+        UPDATE yike_novel_bookshelf
+        SET isTop = CASE
+                        WHEN isTop = 0 THEN 1
+                        WHEN isTop = 1 THEN 0
+                        ELSE isTop
+            END
+        WHERE userId = #{userId}
+          AND novelId = #{novelId}
+        and status != 0
+    </update>
+
+    <update id="subscribeBook">
+        INSERT INTO yike_novel_bookshelf (
+            userId,
+            novelId,
+            LatestchapterId,
+            BookName,
+            AuthorName,
+            Latestchapter,
+            LastUpdateTime,
+            coverUrl
+        ) VALUES (
+                     #{userId},  -- 用户ID
+                     #{novelId}, -- 小说ID
+                     #{latestChapterId}, -- 最新章节ID
+                     #{bookName}, -- 书名
+                     #{authorName}, -- 作者名
+                     #{latestChapter}, -- 最新章节
+                     #{lastUpdateTime}, -- 小说最新更新时间
+                     #{coverUrl} -- 小说封面图片URL
+                 );
+
+    </update>
+    <update id="updateIsReadByUserIdAndNovelId">
+        update yike_novel_bookshelf
+        set isRead = 1
+        where userId = #{userId}
+          and novelId = #{novelId}
+        and status != 0
+
+    </update>
+    <update id="updateIsReadByNovelId">
+        update yike_novel_bookshelf
+        set isRead = 0
+        where NovelId = #{NovelId}
+          and status != 0
+        and userID in (
+        <foreach collection="userIDs" item="id" separator=",">
+            #{id}
+        </foreach>
+        )
+    </update>
+    <update id="updateSubscribeAuditChapterId">
+        update yike_novel_subscribe_audit
+        set chapterId = #{chapterId}
+        where userId = #{userId}
+          and novelId = #{novelId}
+
+    </update>
+    <update id="deleteBookByUserIdAndNovelId">
+        update  yike_novel_bookshelf
+        set status = 0
+        where userId = #{userId}
+          and novelId = #{novelId}
+          and status != 0
+    </update>
+
+
+    <select id="getBookShelfByUserId" resultType="vip.xiaozhao.intern.baseUtil.intf.entity.YikeNovelBookshelf">
+        SELECT
+            id,
+            userId,
+            novelId,
+            LatestchapterId,
+            BookName,
+            AuthorName,
+            Latestchapter,
+            LastUpdateTime,
+            coverUrl,
+            status,
+            isRead,
+            isTop
+        FROM
+            yike_novel_bookshelf
+        WHERE
+            userId = #{userId}
+          AND status != 0
+        ORDER BY
+            LastUpdateTime DESC;
+
+    </select>
+
+    <select id="getSubscribeAuditByUserIdAndNovelId" resultType="vip.xiaozhao.intern.baseUtil.intf.entity.YikeNovelSubscribeAudit">
+        SELECT
+            id,
+            userId,
+            novelId,
+            ChapterId,
+            addTime
+        FROM
+            yike_novel_subscribe_audit
+        WHERE
+            userId = #{userId}
+          AND novelId = #{novelId}
+    </select>
+</mapper>

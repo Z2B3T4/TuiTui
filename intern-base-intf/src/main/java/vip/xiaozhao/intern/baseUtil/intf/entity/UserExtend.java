@@ -1,5 +1,6 @@
 package vip.xiaozhao.intern.baseUtil.intf.entity;
 
+
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -7,10 +8,12 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
 
+
 @Getter
 @Setter
 @ToString
 public class UserExtend {
+
     private int id;
     private int userId;
     private int provinceId;
