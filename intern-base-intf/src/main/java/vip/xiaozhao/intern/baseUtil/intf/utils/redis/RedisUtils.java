@@ -55,8 +55,8 @@ public class RedisUtils {
                 config.setMaxIdle(MAX_IDLE);
                 config.setMaxWaitMillis(MAX_WAIT);
                 config.setTestOnBorrow(true);
-                pool = new JedisPool(config, RedisConstant.hostName, RedisConstant.port, TIMEOUT);
-
+                int databaseIndex = 1; // 例如，连接到数据库 0
+                pool = new JedisPool(config, RedisConstant.hostName, RedisConstant.port, TIMEOUT, null, databaseIndex);
             }
         } catch (Exception e) {
             log.error("fail to init pool", e);

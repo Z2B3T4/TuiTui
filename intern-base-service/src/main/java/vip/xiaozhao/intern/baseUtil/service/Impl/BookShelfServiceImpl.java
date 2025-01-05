@@ -93,12 +93,19 @@ public class BookShelfServiceImpl implements BookShelfService {
     @Override
     public void updateTopBook(int userID, int novelId) throws Exception {
         List<YikeNovelBookshelf> bookShelfByUserId = getBookShelfByUserId(userID);
+        Boolean isexistNovel = false;
         int isTopID = -1;
         for (YikeNovelBookshelf yikeNovelBookshelf : bookShelfByUserId) {
+            if(yikeNovelBookshelf.getNovelId() == novelId){
+                isexistNovel = true;
+            }
             if(yikeNovelBookshelf.getIsTop() == 1){
                 isTopID = yikeNovelBookshelf.getNovelId();
                 break;
             }
+        }
+        if(!isexistNovel){
+            throw new RuntimeException("该小说不存在");
         }
         if(isTopID != -1 && bookShelfByUserId.size() > 1){
             bookShelfMapper.updateTopBook(userID,isTopID);
@@ -223,8 +230,11 @@ public class BookShelfServiceImpl implements BookShelfService {
 
           */
 
-        RedisUtils.remove(RedisConstant.preUserId +  String.valueOf(userID));
-        getBookShelfByUserId(userID);
+        for (Integer userid : userIDs) {
+            if(RedisUtils.get(RedisConstant.preUserId +  String.valueOf(userID)) != null){
+                RedisUtils.remove(RedisConstant.preUserId +  String.valueOf(userID));
+            }
+        }
 
     }
 
@@ -283,11 +293,12 @@ public class BookShelfServiceImpl implements BookShelfService {
         }
 
           */
-
+            for (Integer userid : userIDs) {
+                if(RedisUtils.get(RedisConstant.preUserId +  String.valueOf(userID)) != null){
+                    RedisUtils.remove(RedisConstant.preUserId +  String.valueOf(userID));
+                }
+            }
         }
-
-        RedisUtils.remove(RedisConstant.preUserId +  String.valueOf(userID));
-        getBookShelfByUserId(userID);
     }
 
 

@@ -25,6 +25,9 @@ public class SearchBookController extends BaseController {
         或者加了名称是master的都是从主库读取
      */
 
+    /*
+     * 主从，从配置文件中读取配置信息，动态配置
+     * */
     @Resource
     private SearchBookService searchBookService;
 

@@ -15,21 +15,26 @@
     <select id="searchNovelList" resultType="vip.xiaozhao.intern.baseUtil.intf.DO.NovelDO">
         SELECT
             id,
-            AuthorId,
-            BookName,
-            AuthorName,
-            `Desc` AS Description
+            authorId,
+            bookName,
+            authorName,
+            `desc`,
+            cover,
+            status,
+            subscribeNum,
+            latestChapterId,
+            latestChapter,
+            chapterUrl
         FROM
             novel_info
         WHERE
-            MATCH(BookName, AuthorName)
-                  AGAINST(#{query} IN NATURAL LANGUAGE MODE) and status != 0
+            MATCH(bookName, authorName)
+                  AGAINST(#{query} IN NATURAL LANGUAGE MODE) AND status != 0
         ORDER BY
-            SubscribeNum DESC
+            subscribeNum DESC
         LIMIT #{pageSize} OFFSET #{start};
-
-
     </select>
+
     <select id="getHotNovelByNovelId" parameterType="int" resultType="vip.xiaozhao.intern.baseUtil.intf.DO.HotNovelDO">
         select id,bookName,bookId,times,status from vip_search_hot where bookId = #{novelId} and status != 0
     </select>

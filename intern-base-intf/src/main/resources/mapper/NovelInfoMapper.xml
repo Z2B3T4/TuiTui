@@ -4,7 +4,32 @@
 
 
     <select id="getNovelInfoByNovelId" resultType="vip.xiaozhao.intern.baseUtil.intf.entity.NovelInfo">
-        select * from novel_info where id = #{novelId}
+        SELECT
+            id,                    -- 主键，自增ID
+            authorId,             -- 作者ID
+            bookName,             -- 书名
+            authorName,           -- 作者名
+            description,          -- 描述
+            subscribeNum,         -- 订阅数量
+            weekSubNum,           -- 每周订阅数量
+            monthSubNum,          -- 每月订阅数量
+            searchNum,            -- 搜索数量
+            bookUrl,              -- 书的URL
+            cover,                -- 封面
+            lastUpdateTime,       -- 最后更新时间
+            searchUpdateTime,     -- 搜索更新时间
+            regex,
+            searchKey,            -- 搜索关键字
+            latestChapterId,      -- 最新章节ID
+            latestChapter,        -- 最新章节
+            chapterUrl,           -- 章节URL
+            searchLatestChapter,   -- 搜索最新章节
+            status,               -- 状态
+            addTime,              -- 默认为当前时间
+            updateTime            -- 更新时间
+        FROM novel_info
+        WHERE id = #{novelId};
+
     </select>
 
 </mapper>
