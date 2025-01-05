@@ -84,8 +84,17 @@ public class DataSourceProperties {
         private String password;
         private String driverClassName;
         private String type;
+        private String name;
 
         // getters and setters
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
         public String getUrl() {
             return url;
         }

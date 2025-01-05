@@ -1,5 +1,6 @@
 package vip.xiaozhao.intern.baseUtil.controller.bookshelf;
-
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.*;
 import vip.xiaozhao.intern.baseUtil.controller.BaseController;
@@ -20,7 +21,8 @@ import java.util.List;
 @RequestMapping("/tuitui3/searchBook")
 public class SearchBookController extends BaseController {
      /*
-        区分主从在mapper层中，加了 @ReadOnly 是从库读取，没加的是默认主库操作
+        区分主从在mapper层中，加了 @SlaveDataSource 是从库读取，可以指定从库的名称，没加的是默认主库操作
+        或者加了名称是master的都是从主库读取
      */
 
     @Resource
@@ -28,6 +30,8 @@ public class SearchBookController extends BaseController {
 
     @Resource
     private NovelInfoService novelInfoService;
+
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @GetMapping("/searchNovelList")
     public ResponseDO searchNovelList(@RequestParam(name = "page") int page,
@@ -67,7 +71,14 @@ public class SearchBookController extends BaseController {
     public ResponseDO getHotNovelList() {
         String redisHotNovelList = RedisUtils.get(RedisConstant.HOT_NOVEL_LIST);
         if(redisHotNovelList != null){
-            return ResponseDO.success(redisHotNovelList);
+            List<HotNovelDO> hotNovelList;
+            try {
+                // 这里转换为对象是因为防止二次json序列化导致返回给前端的格式错误
+                hotNovelList = objectMapper.readValue(redisHotNovelList, new TypeReference<List<HotNovelDO>>() {});
+                return ResponseDO.success(hotNovelList);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         }
         List<HotNovelDO> hotNovelList = searchBookService.getHotNovelList();
         RedisUtils.set(RedisConstant.HOT_NOVEL_LIST, hotNovelList,RedisUtils.EXRP_ONE_HOUR);

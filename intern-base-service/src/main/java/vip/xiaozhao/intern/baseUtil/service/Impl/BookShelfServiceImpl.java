@@ -25,7 +25,8 @@ import java.util.stream.Collectors;
 @Service
 public class BookShelfServiceImpl implements BookShelfService {
      /*
-        区分主从在mapper层中，加了 @ReadOnly 是从库读取，没加的是默认主库操作
+        区分主从在mapper层中，加了 @SlaveDataSource 是从库读取，可以指定从库的名称，没加的是默认主库操作
+        或者加了名称是master的都是从主库读取
      */
 
 

@@ -7,7 +7,7 @@ import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
-import vip.xiaozhao.intern.baseUtil.intf.constant.SlaveConstant;
+
 
 import javax.sql.DataSource;
 import java.util.HashMap;
@@ -44,6 +44,9 @@ public class DataSourceConfig {
         List<DataSourceProperties.SlaveDataSourceConfig> slaveConfigs = dataSourceProperties.getSlaves();
         for (int i = 0; i < slaveConfigs.size(); i++) {
             DataSourceProperties.SlaveDataSourceConfig slaveConfig = slaveConfigs.get(i);
+            if(slaveConfig.getName() == null){
+                throw new RuntimeException("从数据源" + slaveConfig.getUrl() + "未配置名称");
+            }
             DataSource slaveDataSource = DataSourceBuilder.create()
                     .url(slaveConfig.getUrl())
                     .username(slaveConfig.getUsername())
@@ -51,8 +54,7 @@ public class DataSourceConfig {
                     .driverClassName(slaveConfig.getDriverClassName())
                     .type(DruidDataSource.class)
                     .build();
-            SlaveConstant.slaveNum++;
-            targetDataSources.put("slave" + (i + 1), slaveDataSource);
+            targetDataSources.put(slaveConfig.getName(), slaveDataSource);
         }
 
         return new DynamicDataSource(masterDataSource, targetDataSources);

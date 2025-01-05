@@ -109,7 +109,6 @@ public class RedisUtils {
         }
         return false;
     }
-
     public static boolean addToSet(String key, Object value, int seconds,boolean isPermanent) {
         Jedis jedis = null;
         try {
