@@ -12,6 +12,9 @@ import java.util.List;
 
 @Service
 public class SearchBookServiceImpl implements SearchBookService {
+     /*
+        区分主从在mapper层中，加了 @ReadOnly 是从库读取，没加的是默认主库操作
+     */
 
     @Resource
     private SearchBookMapper searchBookMapper;

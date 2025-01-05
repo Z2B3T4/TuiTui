@@ -4,7 +4,7 @@
 
 
     <insert id="inserIntoHotBook" parameterType="vip.xiaozhao.intern.baseUtil.intf.entity.NovelInfo">
-        insert into vip_search_hot (bookId, bookName,times) values (#{id},#{bookName},0)
+        insert into vip_search_hot (bookId, bookName,times) values (#{id},#{bookName},1)
     </insert>
     <update id="incrementNovelSearchNum" parameterType="int">
         update vip_search_hot set times = times + 1 where bookId = #{novellId}

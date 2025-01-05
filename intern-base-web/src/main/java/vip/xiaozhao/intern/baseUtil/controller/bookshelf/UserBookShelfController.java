@@ -17,6 +17,9 @@ import java.util.List;
 @RestController
 @RequestMapping("/tuitui3/bookshelf")
 public class UserBookShelfController extends BaseController {
+     /*
+        区分主从在mapper层中，加了 @ReadOnly 是从库读取，没加的是默认主库操作
+     */
 
     @Resource
     private BookShelfService bookShelfService;

@@ -3,7 +3,7 @@ package vip.xiaozhao.intern.baseUtil.service.Impl;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
-import vip.xiaozhao.intern.baseUtil.intf.annotation.TargetDataSource;
+
 import vip.xiaozhao.intern.baseUtil.intf.constant.RedisConstant;
 import vip.xiaozhao.intern.baseUtil.intf.entity.NovelInfo;
 import vip.xiaozhao.intern.baseUtil.intf.entity.YikeNovelBookshelf;
@@ -24,6 +24,10 @@ import java.util.stream.Collectors;
 
 @Service
 public class BookShelfServiceImpl implements BookShelfService {
+     /*
+        区分主从在mapper层中，加了 @ReadOnly 是从库读取，没加的是默认主库操作
+     */
+
 
     @Resource
     private BookShelfMapper bookShelfMapper;
@@ -33,9 +37,6 @@ public class BookShelfServiceImpl implements BookShelfService {
 
     private ObjectMapper objectMapper = new ObjectMapper();
 
-
-
-    //@TargetDataSource(name = "slave")
     @Override
     public List<YikeNovelBookshelf> getBookShelfByUserId(int userId) throws Exception {
         String strUserId = String.valueOf(userId);
@@ -88,8 +89,6 @@ public class BookShelfServiceImpl implements BookShelfService {
         RedisUtils.remove(RedisConstant.preUserId +  String.valueOf(userID));
         getBookShelfByUserId(userID);
     }
-
-    //@TargetDataSource(name = "master")
     @Override
     public void updateTopBook(int userID, int novelId) throws Exception {
         List<YikeNovelBookshelf> bookShelfByUserId = getBookShelfByUserId(userID);

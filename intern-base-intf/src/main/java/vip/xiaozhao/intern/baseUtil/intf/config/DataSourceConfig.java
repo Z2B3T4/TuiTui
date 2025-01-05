@@ -1,62 +1,60 @@
 package vip.xiaozhao.intern.baseUtil.intf.config;
 
-import com.alibaba.druid.spring.boot.autoconfigure.DruidDataSourceBuilder;
-import org.apache.ibatis.session.SqlSessionFactory;
-import org.mybatis.spring.SqlSessionFactoryBean;
-import org.mybatis.spring.mapper.MapperScannerConfigurer;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.context.properties.ConfigurationProperties;
+import com.alibaba.druid.pool.DruidDataSource;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
-import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import vip.xiaozhao.intern.baseUtil.intf.constant.SlaveConstant;
 
 import javax.sql.DataSource;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 @Configuration
+@EnableConfigurationProperties(DataSourceProperties.class)
 public class DataSourceConfig {
+
+    @Autowired
+    private DataSourceProperties dataSourceProperties;
+
+    // 配置主数据源
     @Bean(name = "masterDataSource")
-    @ConfigurationProperties(prefix = "spring.datasource.master")
+    @Primary
     public DataSource masterDataSource() {
-        return DruidDataSourceBuilder.create().build();
+        DataSourceProperties.DataSourceConfig masterConfig = dataSourceProperties.getMaster();
+        return DataSourceBuilder.create()
+                .url(masterConfig.getUrl())
+                .username(masterConfig.getUsername())
+                .password(masterConfig.getPassword())
+                .driverClassName(masterConfig.getDriverClassName())
+                .type(DruidDataSource.class)
+                .build();
     }
-    @Bean(name = "slaveDataSource")
-    @ConfigurationProperties(prefix = "spring.datasource.slave")
-    public DataSource slaveDataSource() {
-        return DruidDataSourceBuilder.create().build();
-    }
-    @Bean(name = "dynamicDataSource")
-    public DynamicDataSource dataSource(@Qualifier("masterDataSource") DataSource masterDataSource,
-                                        @Qualifier("slaveDataSource") DataSource slaveDataSource) {
+
+    // 配置从数据源
+    @Bean
+    public DynamicDataSource dataSource(@Autowired DataSource masterDataSource) {
         Map<Object, Object> targetDataSources = new HashMap<>();
         targetDataSources.put("master", masterDataSource);
-        targetDataSources.put("slave", slaveDataSource);
+
+        List<DataSourceProperties.SlaveDataSourceConfig> slaveConfigs = dataSourceProperties.getSlaves();
+        for (int i = 0; i < slaveConfigs.size(); i++) {
+            DataSourceProperties.SlaveDataSourceConfig slaveConfig = slaveConfigs.get(i);
+            DataSource slaveDataSource = DataSourceBuilder.create()
+                    .url(slaveConfig.getUrl())
+                    .username(slaveConfig.getUsername())
+                    .password(slaveConfig.getPassword())
+                    .driverClassName(slaveConfig.getDriverClassName())
+                    .type(DruidDataSource.class)
+                    .build();
+            SlaveConstant.slaveNum++;
+            targetDataSources.put("slave" + (i + 1), slaveDataSource);
+        }
+
         return new DynamicDataSource(masterDataSource, targetDataSources);
     }
-    @Primary
-    @Bean(name = "dynamicSqlSessionFactory")
-    public SqlSessionFactory sqlSessionFactory(@Qualifier("dynamicDataSource") DataSource dynamicDataSource)
-            throws Exception {
-        SqlSessionFactoryBean sqlSessionFactoryBean = new SqlSessionFactoryBean();
-        sqlSessionFactoryBean.setDataSource(dynamicDataSource);
-        return sqlSessionFactoryBean.getObject();
-    }
-    @Primary
-    @Bean(name = "dynamicTransactionManager")
-    public DataSourceTransactionManager transactionManager(@Qualifier("dynamicDataSource") DataSource dynamicDataSource) {
-        return new DataSourceTransactionManager(dynamicDataSource);
-    }
-    @Bean
-    public MapperScannerConfigurer mapperScannerConfigurer() {
-        MapperScannerConfigurer configurer = new MapperScannerConfigurer();
-        configurer.setBasePackage("vip.xiaozhao.intern.baseUtil.intf.mapper");
-        return configurer;
-    }
-
-
-
 }

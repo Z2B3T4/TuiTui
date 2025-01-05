@@ -19,6 +19,9 @@ import java.util.List;
 @RestController
 @RequestMapping("/tuitui3/searchBook")
 public class SearchBookController extends BaseController {
+     /*
+        区分主从在mapper层中，加了 @ReadOnly 是从库读取，没加的是默认主库操作
+     */
 
     @Resource
     private SearchBookService searchBookService;
@@ -46,6 +49,9 @@ public class SearchBookController extends BaseController {
         HotNovelDO hotNovelByNovelId = searchBookService.getHotNovelByNovelId(novelId);
         if(hotNovelByNovelId == null){
             NovelInfo novelInfoByNovelId = novelInfoService.getNovelInfoByNovelId(novelId);
+            if(novelInfoByNovelId == null){
+                return ResponseDO.fail("小说不存在");
+            }
             int id = novelInfoByNovelId.getId();
             String bookName = novelInfoByNovelId.getBookName();
             searchBookService.inserIntoHotBook(id,bookName);

@@ -8,7 +8,7 @@ import org.springframework.context.annotation.ComponentScans;
 import org.springframework.context.annotation.PropertySource;
 
 
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = {"vip.xiaozhao.intern.baseUtil"})
 @MapperScan("vip.xiaozhao.intern.baseUtil.intf.mapper")
 @PropertySource("classpath:application.properties")
 public class NaofferWebApplication {
