@@ -1,4 +1,4 @@
-package vip.xiaozhao.intern.baseUtil.controller.bookshelf;
+package vip.xiaozhao.intern.baseUtil.controller.SearchBook;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.Resource;

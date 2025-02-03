@@ -12,5 +12,6 @@ public class YikeNovelSubscribeAudit {
     private int userId;      // 用户ID
     private int novelId;     // 小说ID
     private int chapterId;   // 最新章节ID
+    private int timeGap;   // 时间间隔
     private Date addTime;        // 添加时间
 }

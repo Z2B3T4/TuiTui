@@ -2,13 +2,18 @@ package vip.xiaozhao.intern.baseUtil.service.Impl;
 
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import jakarta.annotation.Resource;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import vip.xiaozhao.intern.baseUtil.intf.constant.RedisConstant;
+import vip.xiaozhao.intern.baseUtil.intf.entity.Message;
 import vip.xiaozhao.intern.baseUtil.intf.entity.NovelInfo;
 import vip.xiaozhao.intern.baseUtil.intf.entity.YikeNovelBookshelf;
 import vip.xiaozhao.intern.baseUtil.intf.entity.YikeNovelSubscribeAudit;
 import vip.xiaozhao.intern.baseUtil.intf.mapper.BookShelfMapper;
+import vip.xiaozhao.intern.baseUtil.intf.mapper.MessageLevelMapper;
+import vip.xiaozhao.intern.baseUtil.intf.mapper.MessageMapper;
+import vip.xiaozhao.intern.baseUtil.intf.mapper.NovelInfoMapper;
 import vip.xiaozhao.intern.baseUtil.intf.service.BookShelfService;
 import vip.xiaozhao.intern.baseUtil.intf.service.NovelInfoService;
 import vip.xiaozhao.intern.baseUtil.intf.utils.JsonUtils;
@@ -16,10 +21,8 @@ import vip.xiaozhao.intern.baseUtil.intf.utils.redis.RedisUtils;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Service
@@ -36,7 +39,15 @@ public class BookShelfServiceImpl implements BookShelfService {
     @Resource
     private NovelInfoService novelInfoService;
 
+    @Resource
+    private MessageMapper messageMapper;
+
+    @Resource
+    private MessageLevelMapper messageLevelMapper;
+
     private ObjectMapper objectMapper = new ObjectMapper();
+    @Autowired
+    private NovelInfoMapper novelInfoMapper;
 
     @Override
     public List<YikeNovelBookshelf> getBookShelfByUserId(int userId) throws Exception {
@@ -80,16 +91,67 @@ public class BookShelfServiceImpl implements BookShelfService {
 
     @Override
     public void readChapter(int userID,int novelId, int chapterId) throws Exception {
-        List<YikeNovelSubscribeAudit> subscribeAuditByUserIdAndNovelId = bookShelfMapper.getSubscribeAuditByUserIdAndNovelId(userID, novelId);
-
-        if(subscribeAuditByUserIdAndNovelId != null && !subscribeAuditByUserIdAndNovelId.isEmpty()){
-            bookShelfMapper.updateSubscribeAuditChapterId(userID,novelId,chapterId);
-        }else{
-            bookShelfMapper.readChapter(userID,novelId,chapterId);
+        // 拿到这个人这本书的信息（从书架表中）
+        YikeNovelBookshelf bookShelfByUserIdAndNovelId = bookShelfMapper.getBookShelfByUserIdAndNovelId(userID, novelId);
+        if(bookShelfByUserIdAndNovelId == null){
+            throw new RuntimeException("该用户没有订阅该小说");
         }
+        // 拿到小说的最新更新时间
+        Date lastUpdateTime = bookShelfByUserIdAndNovelId.getLastUpdateTime();
+        //NovelInfo novelInfoByNovelId = novelInfoMapper.getNovelInfoByNovelId(novelId);
+        // 拿到最后一次的发送消息的时间
+        Message sendTimeMessage = messageMapper.getSendTime(userID, novelId, chapterId);
+        // 获取当前时间
+        long currentTimeMillis = System.currentTimeMillis();
+        int lastUpdateTimeMinutes = Integer.MAX_VALUE;
+        int sendTimeMinutes = Integer.MAX_VALUE;
+        if (lastUpdateTime != null) {
+            // 计算当前时间与 小说最新更新时间 的差值（以分钟为单位）
+            long lastUpdateTimeDiffMillis = currentTimeMillis - lastUpdateTime.getTime();
+            lastUpdateTimeMinutes = (int) TimeUnit.MILLISECONDS.toMinutes(lastUpdateTimeDiffMillis);
+        }
+        if (sendTimeMessage != null) {
+            Date sendTime = sendTimeMessage.getSendTime();
+            if (sendTime != null) {
+                // 计算当前时间与 最新消息发送时间 的差值（以分钟为单位）
+                long sendTimeDiffMillis = currentTimeMillis - sendTime.getTime();
+                sendTimeMinutes = (int) TimeUnit.MILLISECONDS.toMinutes(sendTimeDiffMillis);
+            }
+        }
+        // 取当前时间与两个时间中的最小差值
+        int timeGapMinutes = Math.min(lastUpdateTimeMinutes, sendTimeMinutes);
+        // 获取当前时间间隔对应的等级
+        int level = getLevel(timeGapMinutes);
+        // 只有当前时间间隔对应等级比当前等级小（1是小，5是大，1对应发送频率最高的那一档，5是发送频率最低的那一档）
+        // 并且原先还处于345等级的用户，采取只升一级
+        if(bookShelfByUserIdAndNovelId.getSendLevel() > level && bookShelfByUserIdAndNovelId.getSendLevel() >= 3){
+            messageLevelMapper.updateSendLevelByUserIdAndNovelId(bookShelfByUserIdAndNovelId.getSendLevel() - 1,userID,novelId);
+        }
+        // 向流水表中插入数据
+        bookShelfMapper.readChapter(userID,novelId,chapterId,timeGapMinutes);
+        // 这个更新用户书架订阅缓存
         RedisUtils.remove(RedisConstant.preUserId +  String.valueOf(userID));
         getBookShelfByUserId(userID);
     }
+
+    public static int getLevel(int timeGapMinutes) {
+        // 根据分钟差来判断等级
+        int level;
+        if (timeGapMinutes < 60) {
+            level = 1; // A - 有通知就打开【1小时内】
+        } else if (timeGapMinutes < 1440) { // 60 * 24 = 1440
+            level = 2; // B - 当天非实时，每天发一次
+        } else if (timeGapMinutes >= 1440 && timeGapMinutes <= 4320) { // 1440 * 3 = 4320
+            level = 3; // C - 【1-3天】 ，2天发一次
+        } else if (timeGapMinutes > 4320 && timeGapMinutes <= 10080) { // 10080 = 7 * 1440
+            level = 4; // D - 【3-7天】 ，1周通知一次
+        } else {
+            level = 5; // E - 【>7天】(取关) -》不通知
+        }
+        return level;
+    }
+
+
     @Override
     public void updateTopBook(int userID, int novelId) throws Exception {
         List<YikeNovelBookshelf> bookShelfByUserId = getBookShelfByUserId(userID);

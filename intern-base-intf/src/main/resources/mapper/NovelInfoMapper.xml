@@ -9,7 +9,7 @@
             authorId,             -- 作者ID
             bookName,             -- 书名
             authorName,           -- 作者名
-            description,          -- 描述
+            `Desc`,          -- 描述
             subscribeNum,         -- 订阅数量
             weekSubNum,           -- 每周订阅数量
             monthSubNum,          -- 每月订阅数量

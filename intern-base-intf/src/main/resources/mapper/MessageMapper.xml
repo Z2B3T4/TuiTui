@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="vip.xiaozhao.intern.baseUtil.intf.mapper.MessageMapper">
+
+
+    <select id="getSendTime" resultType="vip.xiaozhao.intern.baseUtil.intf.entity.Message">
+        select id,userId,novelId,chapterId,status from message_send
+        where userId = #{userId} and novelId = #{novelId} and chapterId = #{chapterId} and status != 0
+
+    </select>
+    <select id="getLeastSendTime" resultType="vip.xiaozhao.intern.baseUtil.intf.entity.Message">
+        SELECT id,status,userId,novelId,chapterId,sendTime,AddTime,UpdateTime
+        FROM message_send
+        WHERE userId = #{userId} AND novelId = #{novelId}
+        ORDER BY sendTime DESC
+        LIMIT 1
+    </select>
+
+</mapper>

@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="vip.xiaozhao.intern.baseUtil.intf.mapper.BookShelfMapper">
     <insert id="readChapter">
-        insert into yike_novel_subscribe_audit (userId,novelId,chapterId) values (#{userId},#{novelId},#{chapterId})
+        insert into yike_novel_subscribe_audit (userId,novelId,chapterId,timeGap) values (#{userId},#{novelId},#{chapterId},#{timeGap})
     </insert>
     <update id="updateTopBook">
         UPDATE yike_novel_bookshelf
@@ -25,7 +25,8 @@
             AuthorName,
             Latestchapter,
             LastUpdateTime,
-            coverUrl
+            coverUrl,
+            sendLevel
         ) VALUES (
                      #{userId},  -- 用户ID
                      #{novelId}, -- 小说ID
@@ -34,7 +35,8 @@
                      #{authorName}, -- 作者名
                      #{latestChapter}, -- 最新章节
                      #{lastUpdateTime}, -- 小说最新更新时间
-                     #{coverUrl} -- 小说封面图片URL
+                     #{coverUrl}, -- 小说封面图片URL
+                     1   -- 发送等级
                  );
 
     </update>
@@ -86,7 +88,10 @@
             coverUrl,
             status,
             isRead,
-            isTop
+            isTop,
+            sendLevel,
+            addTime,
+            updateTime
         FROM
             yike_novel_bookshelf
         WHERE
@@ -103,11 +108,62 @@
             userId,
             novelId,
             ChapterId,
-            addTime
+            addTime,
+            timeGap
         FROM
             yike_novel_subscribe_audit
         WHERE
             userId = #{userId}
           AND novelId = #{novelId}
+        and ChapterId = #{chapterId}
+    </select>
+    <select id="getBookShelfByUserIdAndNovelId"
+            resultType="vip.xiaozhao.intern.baseUtil.intf.entity.YikeNovelBookshelf">
+
+        SELECT
+            id,
+            userId,
+            novelId,
+            LatestchapterId,
+            BookName,
+            AuthorName,
+            Latestchapter,
+            LastUpdateTime,
+            coverUrl,
+            status,
+            isRead,
+            isTop,
+            sendLevel,
+            addTime,
+            updateTime
+        FROM
+            yike_novel_bookshelf
+        WHERE
+            userId = #{userId}
+          AND novelId = #{novelId}
+          AND status!= 0
+
+    </select>
+    <select id="getBookSubscribeAll" resultType="vip.xiaozhao.intern.baseUtil.intf.entity.YikeNovelBookshelf">
+        SELECT
+            id,
+            userId,
+            novelId,
+            LatestchapterId,
+            BookName,
+            AuthorName,
+            Latestchapter,
+            LastUpdateTime,
+            coverUrl,
+            status,
+            isRead,
+            isTop,
+            sendLevel,
+            addTime,
+            updateTime
+        FROM
+            yike_novel_bookshelf
+        where status != 0
+
     </select>
 </mapper>

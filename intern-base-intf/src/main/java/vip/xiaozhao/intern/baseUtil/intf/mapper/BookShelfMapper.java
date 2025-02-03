@@ -7,6 +7,7 @@ import vip.xiaozhao.intern.baseUtil.intf.annotation.SlaveDataSource;
 import vip.xiaozhao.intern.baseUtil.intf.entity.YikeNovelBookshelf;
 import vip.xiaozhao.intern.baseUtil.intf.entity.YikeNovelSubscribeAudit;
 
+import java.util.Date;
 import java.util.List;
 
 @Mapper
@@ -18,7 +19,7 @@ public interface BookShelfMapper {
     @SlaveDataSource(name = "slave0")
     public List<YikeNovelBookshelf> getBookShelfByUserId(int userId);
 
-    public void readChapter(int userId,int novelId,int chapterId);
+    public void readChapter(int userId,int novelId,int chapterId,int timeGap);
 
     public void updateTopBook(int userId,int novelId);
 
@@ -34,11 +35,11 @@ public interface BookShelfMapper {
        或者加了名称是master的都是从主库读取
     */
     @SlaveDataSource(name = "slave0")
-    public List<YikeNovelSubscribeAudit> getSubscribeAuditByUserIdAndNovelId(int userId,int novelId);
+    public List<YikeNovelSubscribeAudit> getSubscribeAuditByUserIdAndNovelId(int userId,int novelId,int chapterId);
 
-    public void updateSubscribeAuditChapterId(int userId,int novelId,int chapterId);
+    public void updateSubscribeAuditChapterId(int userId, int novelId, int chapterId);
 
+    public YikeNovelBookshelf getBookShelfByUserIdAndNovelId(int userId,int novelId);
 
-
-
+    public List<YikeNovelBookshelf> getBookSubscribeAll();
 }

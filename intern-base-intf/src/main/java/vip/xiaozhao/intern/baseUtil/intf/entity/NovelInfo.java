@@ -17,7 +17,7 @@ public class NovelInfo {
     private int authorId;             // 作者ID
     private String bookName;              // 书名
     private String authorName;            // 作者名
-    private String description;            // 描述
+    private String desc;            // 描述
     private int subscribeNum = 0;     // 订阅数量，默认为0
     private int weekSubNum = 0;       // 每周订阅数量，默认为0
     private int monthSubNum = 0;      // 每月订阅数量，默认为0
