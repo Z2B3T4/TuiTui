@@ -53,7 +53,7 @@ public class MessageLevelServiceImpl implements MessageLevelService {
             // 只有阅读流水不为空才进行下面的操作，只有当用户订阅了新小说但是没看的时候为空
             if (!last3Audit.isEmpty()){
                 // maxLevel 是最后3条记录中最大的level
-                int minLevel = 0;
+                int minLevel = 5;
                 for (YikeNovelSubscribeAudit yikeNovelSubscribeAuditOneUser : last3Audit) {
                     int level = BookShelfServiceImpl.getLevel(yikeNovelSubscribeAuditOneUser.getTimeGap());
                     if (level <  minLevel) {
@@ -64,7 +64,7 @@ public class MessageLevelServiceImpl implements MessageLevelService {
                 YikeNovelSubscribeAudit leastAudit = last3Audit.get(0);
                 Date leastReadTime = leastAudit.getAddTime();
                 int timeGapToLastReadTime = 0;  // 距离上次阅读的时间间隔（分钟）
-                int newLevel = 0;  // 由这个时间间隔算出的对应发送等级，注意这里赋值的默认值是5，代表5等级
+                int newLevel = 1;  // 由这个时间间隔算出的对应发送等级，注意这里赋值的默认值是1，代表1等级
                 if (leastReadTime != null) {
                     // 获取最后一次发送通知的时间
                     Message leastMessage = messageMapper.getLeastSendTime(userId, novelId);
@@ -84,13 +84,14 @@ public class MessageLevelServiceImpl implements MessageLevelService {
 
                 // 获取当前时间
                 Date currentTime = new Date();
-                // 获取今天的日期
+                // 获取昨天的日期
                 Calendar calendar = Calendar.getInstance();
+                calendar.add(Calendar.DAY_OF_YEAR, -1); // 减去一天，获取昨天的日期
                 calendar.set(Calendar.HOUR_OF_DAY, 2);
                 calendar.set(Calendar.MINUTE, 5);
                 calendar.set(Calendar.SECOND, 0);
                 calendar.set(Calendar.MILLISECOND, 0);
-                Date twoFiveAM = calendar.getTime(); // 今天凌晨2点5分
+                Date twoFiveAM = calendar.getTime(); // 昨天凌晨2点5分
 
                 // 判断 updateTime 是否在今天凌晨2点5分到当前时间之间
                 // 2点5分是因为每天凌晨两点的定时任务，
